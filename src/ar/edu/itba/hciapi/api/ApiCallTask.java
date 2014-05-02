@@ -91,8 +91,8 @@ public class ApiCallTask<T> extends AsyncTask<Void, Void, Void> {
 	 * 
 	 * @param callback
 	 *            The callback which will be called when the operation finishes.
-	 * @param outputParamType
-	 *            The type of the output parameter.
+	 * @param type
+	 *            The type of T (the result).
 	 * @param method
 	 *            The Method which will be invoked on the API
 	 * @param limitField
@@ -114,8 +114,8 @@ public class ApiCallTask<T> extends AsyncTask<Void, Void, Void> {
 	 * 
 	 * @param callback
 	 *            The callback which will be called when the operation finishes.
-	 * @param outputParamType
-	 *            The type of the output parameter.
+	 * @param type
+	 *            The type of the T (the result).
 	 * @param method
 	 *            The Method which will be invoked on the API
 	 * @param limitField
@@ -131,8 +131,8 @@ public class ApiCallTask<T> extends AsyncTask<Void, Void, Void> {
 	 * 
 	 * @param callback
 	 *            The callback which will be called when the operation finishes.
-	 * @param outputParamType
-	 *            The type of the output parameter.
+	 * @param type
+	 *            The type of T (the result).
 	 * @param method
 	 *            The Method which will be invoked on the API
 	 * @param params
@@ -148,8 +148,8 @@ public class ApiCallTask<T> extends AsyncTask<Void, Void, Void> {
 	 * 
 	 * @param callback
 	 *            The callback which will be called when the operation finishes.
-	 * @param outputParamType
-	 *            The type of the output parameter.
+	 * @param type
+	 *            The type of T (the result).
 	 * @param method
 	 *            The Method which will be invoked on the API
 	 */

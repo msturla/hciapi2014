@@ -19,8 +19,11 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		final Button button2 = (Button) findViewById(R.id.button2);
-        button2.setOnClickListener(new View.OnClickListener() {
+		setupButtons();
+	}
+	
+	private void setupButtons() {
+		((Button) findViewById(R.id.button2)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	Api.get().getAttributes(new ApiCallback<List<ProductAttribute>>() {
 
@@ -41,9 +44,8 @@ public class MainActivity extends Activity {
         			
         		});
             }
-        });
-        final Button button1 = (Button) findViewById(R.id.button1);
-        button1.setOnClickListener(new View.OnClickListener() {
+		});
+        ((Button) findViewById(R.id.button1)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	Api.get().getAttributeById(7, new ApiCallback<ProductAttribute>() {
 
@@ -66,8 +68,7 @@ public class MainActivity extends Activity {
         		});
             }
         });
-        final Button button3 = (Button) findViewById(R.id.button3);
-        button3.setOnClickListener(new View.OnClickListener() {
+        ((Button) findViewById(R.id.button3)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	Api.get().signIn("apitestuser", "apitestuser2", new ApiCallback<SignInResult>() {
 
@@ -85,14 +86,12 @@ public class MainActivity extends Activity {
         		});
             }
         });
-		
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-
 }
