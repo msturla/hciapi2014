@@ -126,7 +126,7 @@ public class ApiCallTask<T> extends AsyncTask<Void, Void, Void> {
 					// limit our search to the specified field
 					response = getParamFromJson(obj, limitField);
 					if (response == null) {
-						exception = new ApiException(
+						exception = new JSONException(
 								"Failed to retrieve limitField " + limitField
 										+ " from json: " + response);
 						return null;
@@ -255,19 +255,17 @@ public class ApiCallTask<T> extends AsyncTask<Void, Void, Void> {
 	 * @return An exception with a relevant message.
 	 */
 	private Exception getApiException(JSONObject obj) {
-		String msg;
 		try {
-			msg = String.format("Error Code %d: %s",
-					obj.getInt(ERROR_CODE_FIELD),
-					obj.getString(ERROR_MSG_FIELD));
+			return new ApiException(obj.getString(ERROR_MSG_FIELD), 
+					obj.getInt(ERROR_CODE_FIELD));
 		} catch (JSONException e) {
 			Log.e(TAG,
 					"Eiffel returned an error, but body was malformed: "
 							+ e.getMessage());
-			msg = "API threw an error, but we were unable to parse it: "
-					+ obj.toString();
+			return new JSONException("API threw an error, but we were unable to parse it: "
+					+ obj.toString());
 		}
-		return new ApiException(msg);
+		
 	}
 
 	/**
