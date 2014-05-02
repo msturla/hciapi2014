@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -16,8 +17,10 @@ import org.json.JSONObject;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import ar.edu.itba.hciapi.model.ProductAttribute;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * Makes a remote API call and will try to build an object of type T from the
@@ -86,75 +89,20 @@ public class ApiCallTask<T> extends AsyncTask<Void, Void, Void> {
 	// Any exception thrown during the fetch process.
 	private Exception exception;
 
-	/**
-	 * Constructor with extra parameters and a limitField.
-	 * 
-	 * @param callback
-	 *            The callback which will be called when the operation finishes.
-	 * @param type
-	 *            The type of T (the result).
-	 * @param method
-	 *            The Method which will be invoked on the API
-	 * @param limitField
-	 *            Limit the supplied json from which T is build to this field.
-	 * @param params
-	 *            Extra parameters to include in the request. May be empty.
-	 */
-	public ApiCallTask(ApiCallback<T> callback, Type type, Method method,
-			String limitField, Map<String, String> params) {
-		this.callback = callback;
-		this.type = type;
-		this.method = method;
-		this.limitField = limitField;
-		this.params = params;
+	private ApiCallTask(Builder<T> builder) {
+		requiredArg(builder.callback, "Callback function ");
+		requiredArg(builder.type, "Type of result");
+		requiredArg(builder.method, "Api Method");
+		this.callback = builder.callback;
+		this.type = builder.type;
+		this.method = builder.method;
+		this.limitField = builder.limitField;
+		this.params = builder.params;
 	}
 
-	/**
-	 * Constructor with no extra parameters and a limitField.
-	 * 
-	 * @param callback
-	 *            The callback which will be called when the operation finishes.
-	 * @param type
-	 *            The type of the T (the result).
-	 * @param method
-	 *            The Method which will be invoked on the API
-	 * @param limitField
-	 *            Limit the supplied json from which T is build to this field.
-	 */
-	public ApiCallTask(ApiCallback<T> callback, Type type, Method method,
-			String limitField) {
-		this(callback, type, method, limitField, new HashMap<String, String>());
-	}
-
-	/**
-	 * Constructor with extra parameters and no limitField.
-	 * 
-	 * @param callback
-	 *            The callback which will be called when the operation finishes.
-	 * @param type
-	 *            The type of T (the result).
-	 * @param method
-	 *            The Method which will be invoked on the API
-	 * @param params
-	 *            Extra parameters to include in the request. May be empty.
-	 */
-	public ApiCallTask(ApiCallback<T> callback, Type type, Method method,
-			Map<String, String> params) {
-		this(callback, type, method, null, params);
-	}
-
-	/**
-	 * Constructor with no extra parameters and no limitField.
-	 * 
-	 * @param callback
-	 *            The callback which will be called when the operation finishes.
-	 * @param type
-	 *            The type of T (the result).
-	 * @param method
-	 *            The Method which will be invoked on the API
-	 */
-	public ApiCallTask(ApiCallback<T> callback, Type type, Method method) {
-		this(callback, type, method, null, new HashMap<String, String>());
+	private static void requiredArg(Object obj, String arg) {
+		if (obj == null)
+			throw new IllegalArgumentException(arg + " can not be null.");
 	}
 
 	@Override
@@ -331,6 +279,97 @@ public class ApiCallTask<T> extends AsyncTask<Void, Void, Void> {
 	private String convertStreamToString(java.io.InputStream is) {
 		java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 		return s.hasNext() ? s.next() : "";
+	}
+
+	public static class Builder<T> {
+
+		private ApiCallback<T> callback;
+		private Type type;
+		private Method method;
+		private String limitField;
+		private Map<String, String> params;
+
+		public Builder() {
+			params = new HashMap<String, String>();
+		};
+
+		/**
+		 * Sets the callback function that will be called when this ApiCall
+		 * finishes.
+		 * 
+		 * @param callback
+		 *            The callback to be invoked
+		 * @return an instance to this builder for chaining
+		 */
+		public Builder<T> setCallback(ApiCallback<T> callback) {
+			this.callback = callback;
+			return this;
+		}
+
+		/**
+		 * Limits the instantiation of T to a certain subset of the result json.
+		 * If this is set, field limitField will be searched for in the response
+		 * json and will be the only part used to construct T.
+		 * 
+		 * @param limitField
+		 *            The key of the json field.
+		 * @return an instance to this builder for chaining
+		 */
+		public Builder<T> setLimitField(String limitField) {
+			this.limitField = limitField;
+			return this;
+		}
+
+		/**
+		 * Sets the API Method.
+		 * 
+		 * @param method
+		 *            The api method which is to be called.
+		 * @return an instance to this builder for chaining
+		 */
+		public Builder<T> setMethod(Method method) {
+			this.method = method;
+			return this;
+		}
+
+		/**
+		 * Adds an extra parameter to this api call
+		 * 
+		 * @param key
+		 *            The key of the parameter
+		 * @param value
+		 *            The value of the parameter
+		 * @return an instance to this builder for chaining
+		 */
+		public Builder<T> addParam(String key, String value) {
+			params.put(key, value);
+			return this;
+		}
+
+		/**
+		 * Sets the type of the type argument. For instance, if this is a
+		 * builder of a list of integers, then this should be:
+		 * <code>new TypeToken&lt;List&lt;Integer&gt;&gt;() {}.getType();</code>
+		 * 
+		 * @param type
+		 *            the type of the generic argument
+		 * @return an instance to this builder for chaining
+		 */
+		public Builder<T> setType(Type type) {
+			this.type = type;
+			return this;
+		}
+
+		/**
+		 * Returns an ApiCallTask instance with the information loaded on this
+		 * builder.
+		 * 
+		 * @return an ApiCallTask instance.
+		 */
+		public ApiCallTask<T> build() {
+			return new ApiCallTask<T>(this);
+		}
+
 	}
 
 }
