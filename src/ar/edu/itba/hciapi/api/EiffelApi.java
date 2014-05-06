@@ -1,9 +1,7 @@
 package ar.edu.itba.hciapi.api;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import ar.edu.itba.hciapi.model.ProductAttribute;
 import ar.edu.itba.hciapi.model.SignInResult;
@@ -51,9 +49,6 @@ class EiffelApi implements HciApi {
 	@Override
 	public void signIn(String username, String password,
 			ApiCallback<SignInResult> callback) {
-		Map<String, String> params = new HashMap<>();
-		params.put("username", username);
-		params.put("password", password);
 		Type t = new TypeToken<SignInResult>() {}.getType();
 		new ApiCallTask.Builder<SignInResult>().setCallback(callback)
 				.setType(t).setMethod(SIGN_IN).addParam("username", username)
