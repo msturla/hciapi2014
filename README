@@ -1,0 +1,27 @@
+This is an example project showing the use of some helper classes to consume the HCI API.
+
+In order to use the Helper Api, follow these steps:
+
+1. Copy/Import the classes to your project.
+2. Add gson to your dependencies (by adding the jar to your /libs folder). You can find the .jar and the documentation in https://code.google.com/p/google-gson/ )
+
+In order to add extra methods to the API, follow these steps:
+
+1. Add, if needed, the extra models to represent the data that is being retrieved from the server. Make sure the name and type matches the json fields returned from the server (or check the gson docs to see how to use different names).
+2. Add an extra method to HciApi.java
+3. Add the unimplemented method to MockApi.java . Just instantiate some mock models and call the callback with them.
+4. Add the unimplemented method to EiffelApi.java . Statically create a new Method with the domain first (e.g: Account.groovy) and the api method name as the second parameter.
+5. In the body of the EiffelApi.java method, do the following:
+a) create a Type t by invoking: new TypeToken<T>() {}.getType(); where T is the type of the parameter of your callback function. This is because gson instantiates these generic types at runtime, and the type is not accessible at runtime because of java type deletion.
+b) Create an ApiCallTask.Builder, type parametrized by the type of the parameter of your callback function (i.e. T from step a) ). Now set the following properties to your builder:
+i) Set the type to t (as gotten from a) )
+ii) Set the statically created Method by calling setMethod
+iii) Set the callback function.
+iv) Optional: Set a limit field. Using a limit field will coerce a subset of the json received to the server to the type of your target object. For instance, if the server sends:
+{ "meta": {...} , "products": [ {...},{...} ] }
+and you set limitField to "products", then "[{...},{...}]" will only be used to build your object, meaning it can safely be a List of Product objects. If limitfield is NOT used, then the object must have a variable products of type List<Product>. Keep in mind that in general you want to use limitFields, unless the server returns several properties at the json root level (e.g: during signin [see the provided signin example], or during paged calls).
+v) Add any parameters the server requires to the method.
+c) Build the ApiCallTask and call execute() on it.
+6. You can now safely invoke Api.get().yourMethod(...)
+
+
